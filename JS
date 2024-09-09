@@ -1,0 +1,46 @@
+// Import required libraries
+const express = require('express');
+const bodyParser = require('body-parser');
+const mailgun = require('mailgun-js');
+const path=require('path');
+// Initialize the Express app
+const app = express();
+const port = 3010;
+
+// Mailgun configuration (Replace with your Mailgun API key and domain)
+const mg = mailgun({ apiKey: 'c97423ada2e00f2271b181ee6c49ccfa-826eddfb-913f3a1a', domain: 'sandboxe2309bfa3c1343a19d141d1dacc858db.mailgun.org' });
+
+// Use body-parser to parse POST request body
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static('public'));
+
+
+app.get('/', function(request, response) {
+    response.sendFile(__dirname + '/task2.html');
+});
+
+// Create a POST route
+app.post('/', (req, res) => {
+    const email = req.body.email;
+
+    // Mailgun email data
+    const data = {
+        from: 'Your Name <Manav@sandboxe2309bfa3c1343a19d141d1dacc858db.mailgun.org>', // Update the sender info
+        to: email,
+        subject:"Task 2.1p",
+        text: "Subscribed"
+    };
+
+    // Send the email using Mailgun
+    mg.messages().send(data, (error, body) => {
+        if (error) {
+            return res.status(500).json({ message: 'Failed to send email', error: error.message });
+        }
+        res.json({ message: 'Email sent successfully', body });
+    });
+});
+
+//Start the server
+ app.listen(port, () => {
+     console.log(`Server running on port ${port}`);
+});
